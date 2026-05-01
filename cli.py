@@ -12,7 +12,6 @@ from bot.models import OrderRequest
 from bot.orders import place_order
 from bot.validators import is_valid_symbol
 
-# Initialize Typer app and Rich console
 app = typer.Typer(
     name="Trading Bot",
     help="A simple CLI trading bot for Binance Futures Testnet.",
@@ -20,7 +19,6 @@ app = typer.Typer(
 )
 console = Console()
 
-# Set up a logger for the CLI
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +37,6 @@ def trade():
     )
 
     try:
-        # 1. Ask for order details interactively
         symbol = questionary.text(
             "Enter the trading symbol (e.g., BTCUSDT):",
             validate=lambda text: True if text else "Symbol cannot be empty.",
@@ -84,7 +81,6 @@ def trade():
             ).ask()
             stop_price = float(stop_price)
 
-        # 2. Perform Pydantic validation
         order_request = OrderRequest(
             symbol=symbol,
             side=side,
@@ -109,7 +105,6 @@ def trade():
         raise typer.Exit()
 
 
-    # 3. Show summary and ask for final confirmation
     summary_table = Table(title="[bold yellow]Order Request Summary[/bold yellow]", show_header=False)
     summary_table.add_column("Parameter", style="cyan")
     summary_table.add_column("Value", style="magenta")
@@ -131,7 +126,6 @@ def trade():
         console.print("[yellow]Order cancelled by user.[/yellow]")
         raise typer.Exit()
 
-    # 4. Place the order
     try:
         with console.status("[bold cyan]Placing order...[/bold cyan]"):
             order_response = place_order(order_request)
