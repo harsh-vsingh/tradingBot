@@ -9,7 +9,6 @@ class OrderRequest(BaseModel):
     """
     A Pydantic model to represent and validate a new order request.
     """
-    # Allow both 'stop_price' from the CLI and 'stopPrice' internally
     model_config = {"populate_by_name": True}
 
     symbol: str = Field(..., description="Trading symbol, e.g., BTCUSDT")
@@ -18,14 +17,11 @@ class OrderRequest(BaseModel):
     quantity: float = Field(..., gt=0, description="Order quantity must be positive")
     price: Optional[float] = Field(None, gt=0, description="Required for LIMIT and STOP_LIMIT orders")
     
-    # *** FIX IS HERE ***
-    # We now accept 'stop_price' as an input alias from the CLI,
-    # and use 'triggerPrice' as the output alias for the API.
     stopPrice: Optional[float] = Field(
         None,
-        alias="stop_price", # Alias for input from CLI
+        alias="stop_price",
         validation_alias="stop_price",
-        serialization_alias="triggerPrice", # Alias for output to API
+        serialization_alias="triggerPrice",
         gt=0,
         description="Required for STOP_LIMIT orders",
     )
@@ -45,7 +41,6 @@ class OrderRequest(BaseModel):
         return self
 
     def to_api_params(self) -> dict:
-        # `by_alias=True` now correctly uses 'triggerPrice' on output
         params = self.model_dump(by_alias=True, exclude_none=True)
 
         if params.get("type") == "STOP_LIMIT":
